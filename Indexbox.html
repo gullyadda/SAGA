@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <style>
+    :root {
+      --w: 280px;
+      --h: 135px;
+      --d: 190px;
+
+      /* Heavy Metal Tones */
+      --armor-dark: #0a0e14;
+      --armor-plate: #151d27;
+      --armor-border: #3b4d66;
+      --heavy-bevel: #587194;
+      --cyan: #00f0ff;
+      --cyan-glow: rgba(0, 240, 255, 0.45);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    body {
+      background: transparent;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      perspective: 1000px;
+      touch-action: none;
+      overflow: hidden;
+      font-family: monospace, sans-serif;
+    }
+
+    .scene {
+      width: var(--w);
+      height: var(--h);
+      position: relative;
+      transform-style: preserve-3d;
+    }
+
+    .ground-shadow {
+      position: absolute;
+      width: calc(var(--w) * 1.35);
+      height: calc(var(--d) * 1.35);
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) rotateX(90deg) translateZ(-95px);
+      background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.95) 0%, rgba(0, 0, 0, 0.5) 45%, transparent 75%);
+      filter: blur(16px);
+      pointer-events: none;
+    }
+
+    .chest {
+      width: 100%;
+      height: 100%;
+      position: absolute;
+      transform-style: preserve-3d;
+      transform: rotateX(-20deg) rotateY(25deg);
+      cursor: grab;
+    }
+
+    .chest:active {
+      cursor: grabbing;
+    }
+
+    /* Universal Heavy Face */
+    .face {
+      position: absolute;
+      background: var(--armor-dark);
+      /* Heavy Double Borders for Armor look */
+      border: 6px solid var(--armor-plate);
+      outline: 2px solid var(--armor-border);
+      box-shadow: inset 0 0 30px #000;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+
+    /* --- HEAVY BOLD CORNER BUMPERS --- */
+    .bumper {
+      position: absolute;
+      width: 22px;
+      height: 22px;
+      background: var(--armor-plate);
+      border: 2px solid var(--heavy-bevel);
+      box-shadow: 0 0 6px rgba(0,0,0,0.9);
+      z-index: 5;
+    }
+    .bumper::after {
+      content: '';
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 6px;
+      height: 6px;
+      background: #000;
+      border-radius: 50%;
+      border: 1px solid var(--armor-border);
+    }
+    .b-tl { top: -4px; left: -4px; border-right: none; border-bottom: none; }
+    .b-tr { top: -4px; right: -4px; border-left: none; border-bottom: none; }
+    .b-bl { bottom: -4px; left: -4px; border-right: none; border-top: none; }
+    .b-br { bottom: -4px; right: -4px; border-left: none; border-top: none; }
+
+    /* --- FRONT FACE --- */
+    .face-front {
+      width: var(--w);
+      height: var(--h);
+      transform: translateZ(calc(var(--d) / 2));
+      background: linear-gradient(180deg, #182330 0%, #0d131a 50%, #080c10 100%);
+      border-top: 8px solid #2e3d52;
+    }
+
+    /* Industrial Horizontal Ribs */
+    .heavy-rib {
+      position: absolute;
+      width: 90%;
+      height: 4px;
+      background: #000;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    .rib-top { top: 22px; }
+    .rib-bottom { bottom: 22px; }
+
+    .lock-housing {
+      width: 210px;
+      height: 44px;
+      background: #06080b;
+      border: 3px solid var(--heavy-bevel);
+      border-radius: 6px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 8px;
+      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.9), inset 0 0 10px #000;
+      position: relative;
+      z-index: 6;
+    }
+
+    .hinge-block {
+      width: 28px;
+      height: 24px;
+      background: #1a2433;
+      border: 2px solid #4a5e78;
+      border-radius: 3px;
+    }
+
+    .blue-latch {
+      width: 50px;
+      height: 28px;
+      border: 2px solid var(--cyan);
+      border-radius: 4px;
+      background: rgba(0, 240, 255, 0.1);
+      box-shadow: 0 0 15px var(--cyan-glow), inset 0 0 8px var(--cyan);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      text-decoration: none;
+    }
+
+    .blue-latch:hover, .blue-latch:active {
+      background: var(--cyan);
+      box-shadow: 0 0 25px var(--cyan);
+    }
+
+    .latch-core {
+      width: 18px;
+      height: 10px;
+      background: var(--cyan);
+      border-radius: 2px;
+      box-shadow: 0 0 8px var(--cyan);
+    }
+
+    .prompt-text {
+      margin-top: 8px;
+      font-size: 9px;
+      font-weight: bold;
+      letter-spacing: 2px;
+      color: var(--cyan);
+      text-shadow: 0 0 8px var(--cyan-glow);
+    }
+
+    /* --- TOP FACE --- */
+    .face-top {
+      width: var(--w);
+      height: var(--d);
+      top: calc((var(--h) - var(--d)) / 2);
+      transform: rotateX(90deg) translateZ(calc(var(--h) / 2));
+      background: #080c12;
+      border: 8px solid #222f40;
+      padding: 12px;
+    }
+
+    .screen-bezel {
+      width: 100%;
+      height: 100%;
+      border: 3px solid #16202c;
+      background: #030508;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px;
+      position: relative;
+      box-shadow: inset 0 0 25px rgba(0, 240, 255, 0.12);
+      background-image: repeating-linear-gradient(0deg, rgba(0, 240, 255, 0.04) 0px, rgba(0, 240, 255, 0.04) 1px, transparent 1px, transparent 3px);
+    }
+
+    .screen-hud-top {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      font-size: 8px;
+      color: #4b6382;
+      font-weight: bold;
+    }
+
+    .hud-emblem {
+      border: 2px solid var(--cyan);
+      border-radius: 8px;
+      padding: 6px 20px;
+      text-align: center;
+      box-shadow: 0 0 15px var(--cyan-glow);
+      background: rgba(0, 240, 255, 0.04);
+    }
+
+    .emblem-title {
+      font-size: 18px;
+      font-weight: 900;
+      letter-spacing: 4px;
+      color: var(--cyan);
+      text-shadow: 0 0 10px var(--cyan);
+    }
+
+    .emblem-sub {
+      font-size: 7px;
+      letter-spacing: 2px;
+      color: #fff;
+    }
+
+    /* --- SIDES, BACK, BOTTOM --- */
+    .face-left {
+      width: var(--d);
+      height: var(--h);
+      left: calc((var(--w) - var(--d)) / 2);
+      transform: rotateY(-90deg) translateZ(calc(var(--w) / 2));
+      background: linear-gradient(90deg, #090d13 0%, #151e2a 100%);
+    }
+
+    .mini-monitor {
+      width: 75%;
+      height: 40px;
+      border: 3px solid #28374a;
+      background: #020406;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: inset 0 0 10px #000;
+    }
+
+    .ecg-line {
+      font-size: 11px;
+      color: var(--cyan);
+      letter-spacing: 2px;
+      text-shadow: 0 0 6px var(--cyan);
+    }
+
+    .face-right {
+      width: var(--d);
+      height: var(--h);
+      left: calc((var(--w) - var(--d)) / 2);
+      transform: rotateY(90deg) translateZ(calc(var(--w) / 2));
+      background: linear-gradient(-90deg, #090d13 0%, #151e2a 100%);
+    }
+
+    .grill-vent {
+      width: 75%;
+      height: 45px;
+      background: repeating-linear-gradient(0deg, #05070a, #05070a 4px, #2b3b50 4px, #2b3b50 7px);
+      border: 2px solid #28374a;
+    }
+
+    .face-back {
+      width: var(--w);
+      height: var(--h);
+      transform: rotateY(180deg) translateZ(calc(var(--d) / 2));
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+    }
+
+    .rear-bracket {
+      width: 32px;
+      height: 70px;
+      background: #1a2533;
+      border: 3px solid #3d4f66;
+      border-radius: 4px;
+    }
+
+    .face-bottom {
+      width: var(--w);
+      height: var(--d);
+      top: calc((var(--h) - var(--d)) / 2);
+      transform: rotateX(-90deg) translateZ(calc(var(--h) / 2));
+      background: #05070a;
+      color: #384a5e;
+      font-size: 9px;
+      letter-spacing: 2px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="scene">
+    <div class="ground-shadow"></div>
+
+    <div class="chest" id="chest">
+      
+      <div class="face face-front">
+        <span class="bumper b-tl"></span><span class="bumper b-tr"></span>
+        <span class="bumper b-bl"></span><span class="bumper b-br"></span>
+        <div class="heavy-rib rib-top"></div>
+        <div class="heavy-rib rib-bottom"></div>
+
+        <div class="lock-housing">
+          <div class="hinge-block"></div>
+          <a href="LIST.html" class="blue-latch" id="latchTrigger" target="_top" title="Open Stories Bay">
+            <div class="latch-core"></div>
+          </a>
+          <div class="hinge-block"></div>
+        </div>
+
+        <div class="prompt-text">&gt;&gt; CLICK TO ACCESS &lt;&lt;</div>
+      </div>
+
+      <div class="face face-top">
+        <span class="bumper b-tl"></span><span class="bumper b-tr"></span>
+        <span class="bumper b-bl"></span><span class="bumper b-br"></span>
+        
+        <div class="screen-bezel">
+          <div class="screen-hud-top">
+            <span>[ AI USED  ]</span>
+            <span>STORY BOX</span>
+          </div>
+
+          <div class="hud-emblem">
+            <div class="emblem-title">G4 MASH</div>
+            <div class="emblem-sub">GULLYADDA LABS</div>
+          </div>
+
+          <div class="screen-hud-top">
+            <span>[VERSION 1.0.1]</span>
+            <span>ENTERTAINMENT</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="face face-left">
+        <span class="bumper b-tl"></span><span class="bumper b-tr"></span>
+        <span class="bumper b-bl"></span><span class="bumper b-br"></span>
+        <div class="mini-monitor">
+          <span class="ecg-line">©G4 MASH </span>
+        </div>
+      </div>
+
+      <div class="face face-right">
+        <span class="bumper b-tl"></span><span class="bumper b-tr"></span>
+        <span class="bumper b-bl"></span><span class="bumper b-br"></span>
+        <div class="grill-vent"></div>
+      </div>
+
+      <div class="face face-back">
+        <div class="rear-bracket"></div>
+        <div class="rear-bracket"></div>
+      </div>
+
+      <div class="face face-bottom">
+        <div>[ © copyright 2024 , G4 MASH ,GULLYADDA AS DEFIEND IN TERMS AND CONDITIOS OR CONTACT]</div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    const chest = document.getElementById('chest');
+    const latchTrigger = document.getElementById('latchTrigger');
+
+    let isInteracting = false;
+    let startX = 0;
+    let startY = 0;
+    let currentX = -20;
+    let currentY = 25;
+    const sensitivity = 0.6; // Thoda fast aur responsive
+
+    latchTrigger.addEventListener('touchstart', (e) => e.stopPropagation());
+    latchTrigger.addEventListener('mousedown', (e) => e.stopPropagation());
+
+    function onStart(x, y) {
+      isInteracting = true;
+      startX = x;
+      startY = y;
+    }
+
+    function onMove(x, y) {
+      if (!isInteracting) return;
+      const dx = x - startX;
+      const dy = y - startY;
+
+      // X aur Y dono axis par pure responsive drag
+      currentY += dx * sensitivity;
+      currentX -= dy * sensitivity;
+
+      // Unlocked full continuous 3D rotation
+      chest.style.transform = `rotateX(${currentX}deg) rotateY(${currentY}deg)`;
+
+      startX = x;
+      startY = y;
+    }
+
+    function onEnd() {
+      isInteracting = false;
+    }
+
+    // Touch Support
+    window.addEventListener('touchstart', (e) => onStart(e.touches[0].clientX, e.touches[0].clientY), { passive: false });
+    window.addEventListener('touchmove', (e) => {
+      onMove(e.touches[0].clientX, e.touches[0].clientY);
+      e.preventDefault();
+    }, { passive: false });
+    window.addEventListener('touchend', onEnd);
+
+    // Mouse Support
+    window.addEventListener('mousedown', (e) => onStart(e.clientX, e.clientY));
+    window.addEventListener('mousemove', (e) => onMove(e.clientX, e.clientY));
+    window.addEventListener('mouseup', onEnd);
+  </script>
+</body>
+</html>

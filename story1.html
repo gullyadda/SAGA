@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>G4 MASH // STORY 01</title>
+  <style>
+    :root {
+      --bg: #06090d;
+      --card-bg: #0b1118;
+      --plate-bg: #101924;
+      --border: #1c2b3d;
+      --cyan: #00f0ff;
+      --cyan-glow: rgba(0, 240, 255, 0.4);
+      --dim: #60758e;
+      --amber: #ffaa00;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: monospace, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg);
+      background-image: radial-gradient(#141d27 1px, transparent 1px);
+      background-size: 28px 28px;
+      color: #fff;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 16px 20px 40px;
+    }
+
+    /* Top HUD Navigation */
+    .top-bar {
+      width: 100%;
+      max-width: 800px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 24px;
+    }
+
+    .back-btn {
+      color: var(--cyan);
+      text-decoration: none;
+      font-weight: 900;
+      font-size: 11px;
+      letter-spacing: 1.5px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .back-btn:hover {
+      text-shadow: 0 0 8px var(--cyan);
+    }
+
+    .header-code {
+      font-size: 10px;
+      color: var(--dim);
+      letter-spacing: 1px;
+    }
+
+    /* Container */
+    .terminal-container {
+      width: 100%;
+      max-width: 800px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    /* Story Cover Banner Card */
+    .story-hero {
+      background: var(--card-bg);
+      border: 2px solid var(--border);
+      border-radius: 6px;
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+      position: relative;
+    }
+
+    .banner-preview {
+      width: 100%;
+      height: 200px;
+      background: #0d1622 url('story1.jpg') center/cover no-repeat;
+      border-bottom: 2px solid var(--border);
+      position: relative;
+    }
+
+    .banner-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, transparent 40%, rgba(11, 17, 24, 0.95) 100%);
+    }
+
+    .story-details {
+      padding: 16px;
+    }
+
+    .story-title {
+      font-size: 20px;
+      font-weight: 900;
+      color: var(--cyan);
+      letter-spacing: 2px;
+      margin-bottom: 10px;
+      text-shadow: 0 0 10px var(--cyan-glow);
+    }
+
+    .metadata-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      gap: 8px;
+    }
+
+    .meta-box {
+      background: var(--plate-bg);
+      border: 1px solid #162436;
+      padding: 6px 10px;
+      border-radius: 4px;
+    }
+
+    .meta-label {
+      font-size: 8px;
+      color: var(--dim);
+      letter-spacing: 1px;
+    }
+
+    .meta-value {
+      font-size: 11px;
+      font-weight: bold;
+      color: #fff;
+    }
+
+    /* Seasons Selector */
+    .section-divider {
+      font-size: 11px;
+      font-weight: 900;
+      color: var(--dim);
+      letter-spacing: 2px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .section-divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    .seasons-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 16px;
+    }
+
+    /* Season Block Card */
+    .season-card {
+      background: var(--card-bg);
+      border: 1.5px solid var(--border);
+      border-radius: 6px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 12px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.6);
+      transition: all 0.25s ease;
+    }
+
+    .season-card:hover {
+      border-color: var(--cyan);
+      transform: translateY(-2px);
+    }
+
+    .season-card.locked-card {
+      opacity: 0.55;
+      border-style: dashed;
+    }
+
+    .season-card.locked-card:hover {
+      border-color: var(--border);
+      transform: none;
+    }
+
+    .s-tag {
+      font-size: 9px;
+      font-weight: bold;
+      color: var(--cyan);
+      letter-spacing: 1px;
+    }
+
+    .s-title {
+      font-size: 14px;
+      font-weight: 900;
+      color: #fff;
+      letter-spacing: 1px;
+    }
+
+    .s-desc {
+      font-size: 9px;
+      color: var(--dim);
+      line-height: 1.4;
+    }
+
+    .s-action-btn {
+      display: block;
+      width: 100%;
+      text-align: center;
+      padding: 8px 0;
+      background: rgba(0, 240, 255, 0.08);
+      border: 1px solid var(--cyan);
+      color: var(--cyan);
+      text-decoration: none;
+      font-size: 10px;
+      font-weight: 900;
+      letter-spacing: 1.5px;
+      border-radius: 4px;
+      transition: all 0.2s ease;
+    }
+
+    .s-action-btn:hover {
+      background: var(--cyan);
+      color: #000;
+      box-shadow: 0 0 12px var(--cyan-glow);
+    }
+
+    .s-action-btn.disabled {
+      background: transparent;
+      border-color: #243547;
+      color: var(--dim);
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- TOP HEADER -->
+  <header class="top-bar">
+    <a href="LIST.html" class="back-btn">&lt;&lt; RETURN TO VAULT</a>
+    <span class="header-code">©2022 G4 MASH </span>
+  </header>
+
+  <main class="terminal-container">
+
+    <!-- STORY COVER & INFO -->
+    <section class="story-hero">
+      <div class="banner-preview">
+        <div class="banner-overlay"></div>
+      </div>
+      <div class="story-details">
+        <h1 class="story-title">THE LAST CREATION </h1>
+        <div class="metadata-row">
+          <div class="meta-box">
+            <div class="meta-label">STATUS</div>
+            <div class="meta-value" style="color: var(--cyan);">ONGOING</div>
+          </div>
+          <div class="meta-box">
+            <div class="meta-label">LAUNCH DATE</div>
+            <div class="meta-value">2022-09-30</div>
+          </div>
+          <div class="meta-box">
+            <div class="meta-label">TOTAL SEASONS</div>
+            <div class="meta-value">01 AVAILABLE</div>
+          </div>
+          <div class="meta-box">
+            <div class="meta-label">CHAPTER COUNT</div>
+            <div class="meta-value">___ CHAPTERS</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SEASON ARCHIVE SELECTION -->
+    <div class="section-divider">[ SEASON ARCHIVES ]</div>
+
+    <div class="seasons-grid">
+   
+      
+
+      
+      
+<!-- SEASON 1 in evry AVAILABLE language -->
+      <div class="season-card">
+        <div>
+          <span class="s-tag">[ SEASON 01 ]</span>
+          <h1 class="s-title" style="margin: 4px 0 8px;">BLINDSPOT</h1>
+          <p class="s-desc">ABOUT </p>
+        </div>
+      <!-- to add seson in new language just edit here  -->
+        <a href="BLINDSPOTHE.html" class="s-action-btn">LAUNCH SEASON 01 HINGLISH &gt;</a>
+        <a href="BLINDSPOTE.html" class="s-action-btn">LAUNCH SEASON 01 ENGLISH &gt;</a>
+      </div>
+      
+
+      <!-- SEASON 2 (LOCKED / UPCOMING) -->
+      <div class="season-card locked-card">
+        <div>
+          <span class="s-tag" style="color: var(--amber);">[ SEASON 02 ]</span>
+          <h2 class="s-title" style="margin: 4px 0 8px;">UNDEFIEND</h2>
+          <p class="s-desc">comming soon.</p>
+        </div>
+        <span class="s-action-btn disabled">SYSTEM LOCKED</span>
+      </div>
+
+    </div>
+
+  </main>
+
+</body>
+</html>

@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>-------_--------</title>
+  <style>
+    :root {
+      /* Scaled Up Dimensions for Readability */
+      --w: 300px;
+      --h: 175px;
+      --d: 210px;
+
+      /* Visual Palette */
+      --armor-dark: #080b10;
+      --armor-plate: #131b26;
+      --armor-border: #324357;
+      --heavy-bevel: #506785;
+      --cyan: #00f0ff;
+      --cyan-glow: rgba(0, 240, 255, 0.45);
+      --amber: #ffaa00;
+      --amber-glow: rgba(255, 170, 0, 0.5);
+      --dim: #6c839f;
+      --card-bg: #04070b;
+      --stat-plate: #080e17;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    body {
+      background: transparent;
+      height: 100vh;
+      width: 100vw;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      perspective: 1200px;
+      touch-action: none;
+      overflow: visible;
+      font-family: monospace, sans-serif;
+    }
+
+    /* Floating Mode Indicator / Lock Toggle Button */
+    .control-deck {
+      position: fixed;
+      top: 14px;
+      z-index: 1000;
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .toggle-lock-btn {
+      background: rgba(4, 7, 11, 0.85);
+      border: 2px solid var(--cyan);
+      color: var(--cyan);
+      padding: 7px 16px;
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: 1.5px;
+      cursor: pointer;
+      box-shadow: 0 0 12px var(--cyan-glow);
+      border-radius: 4px;
+      transition: all 0.25s ease;
+    }
+
+    .toggle-lock-btn.locked {
+      border-color: var(--amber);
+      color: var(--amber);
+      box-shadow: 0 0 15px var(--amber-glow);
+    }
+
+    /* Scaling Container */
+    .scene-wrapper {
+      transform: scale(0.72); /* Balanced scale for readable font & wide view */
+      transform-style: preserve-3d;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .scene {
+      width: var(--w);
+      height: var(--h);
+      position: relative;
+      transform-style: preserve-3d;
+    }
+
+    .ground-shadow {
+      position: absolute;
+      width: calc(var(--w) * 3.8);
+      height: calc(var(--d) * 3.8);
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) rotateX(90deg) translateZ(-190px);
+      background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.95) 0%, rgba(0, 0, 0, 0.45) 50%, transparent 75%);
+      filter: blur(28px);
+      pointer-events: none;
+    }
+
+    .chest-root {
+      width: 100%;
+      height: 100%;
+      position: absolute;
+      transform-style: preserve-3d;
+      transform: rotateX(-16deg) rotateY(180deg);
+      cursor: grab;
+    }
+
+    .chest-root.is-locked {
+      cursor: default;
+    }
+
+    /* =========================================================
+       PANEL SURFACES
+       ========================================================= */
+    .panel {
+      position: absolute;
+      transform-style: preserve-3d;
+      transition: transform 3s cubic-bezier(0.2, 0.9, 0.7, 1);
+    }
+
+    .outer-skin {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      background: var(--armor-dark);
+      border: 5px solid var(--armor-plate);
+      outline: 2px solid var(--armor-border);
+      box-shadow: inset 0 0 30px #000;
+      backface-visibility: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .inner-skin {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      background: var(--card-bg);
+      border: 3.5px solid #1c2a3b;
+      box-shadow: inset 0 0 25px #000;
+      transform: rotateY(180deg);
+      backface-visibility: hidden;
+      padding: 10px 12px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      overflow: hidden;
+    }
+
+    .bumper {
+      position: absolute;
+      width: 16px;
+      height: 16px;
+      background: var(--armor-plate);
+      border: 2px solid var(--heavy-bevel);
+    }
+    .b-tl { top: -2px; left: -2px; }
+    .b-tr { top: -2px; right: -2px; }
+    .b-bl { bottom: -2px; left: -2px; }
+    .b-br { bottom: -2px; right: -2px; }
+
+    /* =========================================================
+       UNFOLD JOINT RIGGING
+       ========================================================= */
+    .panel-back {
+      width: var(--w);
+      height: var(--h);
+      transform: translateZ(calc(var(--d) / -2));
+    }
+
+    .panel-top {
+      width: var(--w);
+      height: var(--d);
+      bottom: 100%;
+      left: 0;
+      transform-origin: bottom center;
+      transform: rotateX(90deg);
+    }
+
+    .panel-bottom {
+      width: var(--w);
+      height: var(--d);
+      top: 100%;
+      left: 0;
+      transform-origin: top center;
+      transform: rotateX(-90deg);
+    }
+
+    .panel-front {
+      width: var(--w);
+      height: var(--h);
+      top: 100%;
+      left: 0;
+      transform-origin: top center;
+      transform: rotateX(-90deg);
+    }
+
+    .panel-left {
+      width: var(--d);
+      height: var(--h);
+      right: 100%;
+      top: 0;
+      transform-origin: right center;
+      transform: rotateY(-90deg);
+    }
+
+    .panel-right {
+      width: var(--d);
+      height: var(--h);
+      left: 100%;
+      top: 0;
+      transform-origin: left center;
+      transform: rotateY(90deg);
+    }
+
+    body.is-unfolded .panel-top,
+    body.is-unfolded .panel-bottom,
+    body.is-unfolded .panel-front {
+      transform: rotateX(0deg);
+    }
+    body.is-unfolded .panel-left,
+    body.is-unfolded .panel-right {
+      transform: rotateY(0deg);
+    }
+
+    /* =========================================================
+       INNER CARD HUD & 3D INTERACTIVE CUBE
+       ========================================================= */
+    .card-header-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1.5px solid rgba(0, 240, 255, 0.35);
+      padding-bottom: 4px;
+    }
+
+    .card-id-tag {
+      font-size: 11px;
+      font-weight: 900;
+      color: var(--cyan);
+      letter-spacing: 1.5px;
+    }
+
+    .card-status-indicator {
+      font-size: 9px;
+      font-weight: bold;
+      color: var(--dim);
+    }
+
+    .card-body-core {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin: auto 0;
+      height: 92px;
+    }
+
+    /* 3D Mini Cube Viewport */
+    .cube-stage {
+      width: 80px;
+      height: 80px;
+      perspective: 400px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-shrink: 0;
+      touch-action: none;
+    }
+
+    .mini-cube {
+      width: 54px;
+      height: 54px;
+      position: relative;
+      transform-style: preserve-3d;
+      transform: rotateX(-15deg) rotateY(25deg);
+      cursor: grab;
+      will-change: transform;
+    }
+
+    .mini-cube.spin-idle {
+      animation: idleSpin 14s infinite linear;
+    }
+
+    @keyframes idleSpin {
+      0% { transform: rotateX(-15deg) rotateY(0deg); }
+      100% { transform: rotateX(-15deg) rotateY(360deg); }
+    }
+
+    .mini-face {
+      position: absolute;
+      width: 54px;
+      height: 54px;
+      background: #09121a;
+      border: 1.5px solid var(--cyan);
+      box-shadow: inset 0 0 10px rgba(0, 240, 255, 0.45);
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+    }
+
+    .mf-front  { transform: translateZ(27px); }
+    .mf-back   { transform: rotateY(180deg) translateZ(27px); }
+    .mf-left   { transform: rotateY(-90deg) translateZ(27px); }
+    .mf-right  { transform: rotateY(90deg) translateZ(27px); }
+    .mf-top    { transform: rotateX(90deg) translateZ(27px); }
+    .mf-bottom { transform: rotateX(-90deg) translateZ(27px); }
+
+    /* Metadata Specification Grid */
+    .card-specs-matrix {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4px;
+    }
+
+    .spec-item {
+      background: var(--stat-plate);
+      border: 1px solid #162333;
+      padding: 3px 6px;
+      border-radius: 2px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .spec-label {
+      color: var(--dim);
+      font-size: 7px;
+      font-weight: bold;
+      letter-spacing: 0.5px;
+    }
+
+    .spec-val {
+      color: #fff;
+      font-size: 8.5px;
+      font-weight: 900;
+      letter-spacing: 0.5px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .spec-val.active-title {
+      color: var(--cyan);
+      text-shadow: 0 0 8px var(--cyan-glow);
+    }
+
+    /* Card Footer Action */
+    .card-action-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      padding-top: 4px;
+    }
+
+    .access-story-btn {
+      color: var(--cyan);
+      text-decoration: none;
+      font-weight: 900;
+      font-size: 9px;
+      letter-spacing: 1.5px;
+      padding: 4px 10px;
+      border: 1.5px solid var(--cyan);
+      background: rgba(0, 240, 255, 0.08);
+      transition: all 0.2s ease;
+    }
+
+    .access-story-btn:hover {
+      background: var(--cyan);
+      color: #000;
+      box-shadow: 0 0 10px var(--cyan);
+    }
+
+    .close-vault-trigger {
+      padding: 8px 18px;
+      background: #05080c;
+      border: 2px solid var(--cyan);
+      color: var(--cyan);
+      font-size: 11px;
+      font-weight: bold;
+      letter-spacing: 1.5px;
+      text-decoration: none;
+      box-shadow: 0 0 12px var(--cyan-glow);
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- MASTER ROTATION LOCK TOGGLE BUTTON -->
+  <div class="control-deck">
+    <button class="toggle-lock-btn" id="lockToggleBtn">[ VAULT: UNLOCKED ]</button>
+  </div>
+
+  <div class="scene-wrapper">
+    <div class="scene">
+      <div class="ground-shadow"></div>
+
+      <div class="chest-root" id="chestRoot">
+
+        <!-- CARD 1 (ROOT / BACK PANEL) -->
+        <div class="panel panel-back" data-card-idx="1">
+          <div class="outer-skin">
+            <span class="bumper b-tl"></span><span class="bumper b-tr"></span>
+            <span class="bumper b-bl"></span><span class="bumper b-br"></span>
+            <div style="font-size:10px; color:var(--dim);">&lt;STORY BOX : OPEN &gt;</div>
+          </div>
+          <div class="inner-skin"></div>
+
+          <!-- CARD 2 (TOP LID) -->
+          <div class="panel panel-top" data-card-idx="2">
+            <div class="outer-skin">
+              <span class="bumper b-tl"></span><span class="bumper b-tr"></span>
+              <span class="bumper b-bl"></span><span class="bumper b-br"></span>
+              <div style="font-size:10px; color:var(--cyan);">[version 1.0.1]</div>
+            </div>
+            <div class="inner-skin"></div>
+          </div>
+
+          <!-- CARD 3 (BOTTOM PANEL) -->
+          <div class="panel panel-bottom" data-card-idx="3">
+            <div class="outer-skin">
+              <span class="bumper b-tl"></span><span class="bumper b-tr"></span>
+              <span class="bumper b-bl"></span><span class="bumper b-br"></span>
+              <div style="font-size:10px; color:var(--dim);">&lt; [ © copyright 2024 , G4 MASH ,GULLYADDA AS DEFIEND IN TERMS AND CONDITIOS OR CONTACT] &gt;</div>
+            </div>
+            <div class="inner-skin"></div>
+
+            <!-- CARD 4 (FRONT PANEL) -->
+            <div class="panel panel-front" data-card-idx="4">
+              <div class="outer-skin">
+                <span class="bumper b-tl"></span><span class="bumper b-tr"></span>
+                <span class="bumper b-bl"></span><span class="bumper b-br"></span>
+                <a href="index.html" target="_top" class="close-vault-trigger" id="closeBtn">[ CLOSE BOX ]</a>
+              </div>
+              <div class="inner-skin"></div>
+            </div>
+          </div>
+
+          <!-- CARD 5 (LEFT PANEL) -->
+          <div class="panel panel-left" data-card-idx="5">
+            <div class="outer-skin">
+              <span class="bumper b-tl"></span><span class="bumper b-tr"></span>
+              <span class="bumper b-bl"></span><span class="bumper b-br"></span>
+              <div style="font-size:10px; color:var(--cyan);">©G4 MASH </div>
+            </div>
+            <div class="inner-skin"></div>
+          </div>
+
+          <!-- CARD 6 (RIGHT PANEL) -->
+          <div class="panel panel-right" data-card-idx="6">
+            <div class="outer-skin">
+              <span class="bumper b-tl"></span><span class="bumper b-tr"></span>
+              <span class="bumper b-bl"></span><span class="bumper b-br"></span>
+              <div style="font-size:10px; color:var(--dim);">||||||||||</div>
+            </div>
+            <div class="inner-skin"></div>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /* =========================================================
+       6-STORY DIRECT CONFIGURATION (Direct story1.html to story6.html)
+       ========================================================= */
+    const STORY_CONFIG = {
+      1: {
+        title: "THE LAST CREATION",
+        file: "story1.html",
+        image: "story1.jpg",
+        startDate: "2022-09-30",
+        lastUpdate: "2026-09",
+        seasons: "01",
+        chapters: "1",
+        pages: "IN PROGRESS"
+      },
+      2: {
+        title: "?????",
+        file: "story2.html",
+        image: "story2.jpg",
+        startDate: "???????",
+        lastUpdate: "????",
+        seasons: "??????",
+        chapters: "?????",
+        pages: "?????"
+      },
+      3: {
+        title: "????????",
+        file: "story3.html",
+        image: "story3.jpg",
+        startDate: "????????",
+        lastUpdate: "???????",
+        seasons: "????????",
+        chapters: "????",
+        pages: "?????"
+      },
+      4: {
+        title: "???????",
+        file: "story4.html",
+        image: "story4.jpg",
+        startDate: "????????",
+        lastUpdate: "???????",
+        seasons: "????????",
+        chapters: "????????",
+        pages: "???????"
+      },
+      5: {
+        title: "???????",
+        file: "story5.html",
+        image: "story5.jpg",
+        startDate: "???????",
+        lastUpdate: "???????",
+        seasons: "?????????",
+        chapters: "?????????",
+        pages: "?????????"
+      },
+      6: {
+        title: "???????????",
+        file: "story6.html",
+        image: "story6.jpg",
+        startDate: "?????????",
+        lastUpdate: "?????????",
+        seasons: "????????",
+        chapters: "???????",
+        pages: "?????????"
+      }
+    };
+
+    /* =========================================================
+       DYNAMIC CARD ENGINE
+       ========================================================= */
+    const panels = document.querySelectorAll('.panel');
+
+    panels.forEach(panel => {
+      const idx = panel.getAttribute('data-card-idx');
+      const innerSkin = panel.querySelector('.inner-skin');
+      const data = STORY_CONFIG[idx];
+      const imgStyle = `background-image: url('${data.image}');`;
+
+      innerSkin.innerHTML = `
+        <div class="card-header-bar">
+          <span class="card-id-tag">[ CARD // 0${idx} ]</span>
+          <span class="card-status-indicator">MOUNTED</span>
+        </div>
+
+        <div class="card-body-core">
+          <!-- 3D Mini Interactive Cube Container -->
+          <div class="cube-stage" data-cube-id="${idx}">
+            <div class="mini-cube spin-idle" id="cube-${idx}">
+              <div class="mini-face mf-front" style="${imgStyle}"></div>
+              <div class="mini-face mf-back" style="${imgStyle}"></div>
+              <div class="mini-face mf-left" style="${imgStyle}"></div>
+              <div class="mini-face mf-right" style="${imgStyle}"></div>
+              <div class="mini-face mf-top" style="${imgStyle}"></div>
+              <div class="mini-face mf-bottom" style="${imgStyle}"></div>
+            </div>
+          </div>
+
+          <!-- Big Bold Readable Specs -->
+          <div class="card-specs-matrix">
+            <div class="spec-item" style="grid-column: span 2;">
+              <span class="spec-label">STORY TITLE</span>
+              <span class="spec-val active-title">${data.title}</span>
+            </div>
+            <div class="spec-item">
+              <span class="spec-label">START DATE</span>
+              <span class="spec-val">${data.startDate}</span>
+            </div>
+            <div class="spec-item">
+              <span class="spec-label">LAST UPDATE</span>
+              <span class="spec-val">${data.lastUpdate}</span>
+            </div>
+            <div class="spec-item">
+              <span class="spec-label">SEASONS / CH.</span>
+              <span class="spec-val">S${data.seasons} // C${data.chapters}</span>
+            </div>
+            <div class="spec-item">
+              <span class="spec-label">TOTAL PAGES</span>
+              <span class="spec-val">${data.pages} PGS</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="card-action-bar">
+          <span style="font-size: 8px; color:var(--dim);">SECURITY // READ-ONLY</span>
+          <a href="${data.file}" class="access-story-btn" target="_top">OPEN STORY &gt;</a>
+        </div>
+      `;
+    });
+
+    /* =========================================================
+       MECHANICAL OPENING
+       ========================================================= */
+    window.addEventListener('load', () => {
+      setTimeout(() => {
+        document.body.classList.add('is-unfolded');
+      }, 2000);
+    });
+
+    /* =========================================================
+       ROTATION LOCK CONTROLS & MINI-CUBE TOUCH ENGINE
+       ========================================================= */
+    const chestRoot = document.getElementById('chestRoot');
+    const lockToggleBtn = document.getElementById('lockToggleBtn');
+    const closeBtn = document.getElementById('closeBtn');
+
+    let isVaultLocked = false;
+
+    lockToggleBtn.addEventListener('click', () => {
+      isVaultLocked = !isVaultLocked;
+      if (isVaultLocked) {
+        lockToggleBtn.classList.add('locked');
+        lockToggleBtn.textContent = "[ VAULT: LOCKED (CUBES ACTIVE) ]";
+        chestRoot.classList.add('is-locked');
+        // Stop background idle spin on all mini cubes when locked for manual control
+        document.querySelectorAll('.mini-cube').forEach(c => c.classList.remove('spin-idle'));
+      } else {
+        lockToggleBtn.classList.remove('locked');
+        lockToggleBtn.textContent = "[ VAULT: UNLOCKED ]";
+        chestRoot.classList.remove('is-locked');
+        document.querySelectorAll('.mini-cube').forEach(c => c.classList.add('spin-idle'));
+      }
+    });
+
+    // 1. Assembly Swipe Rotation
+    let isMainInteracting = false;
+    let mainStartX = 0, mainStartY = 0;
+    let mainRotX = -16, mainRotY = 205;
+
+    window.addEventListener('touchstart', (e) => {
+      if (isVaultLocked) return;
+      isMainInteracting = true;
+      mainStartX = e.touches[0].clientX;
+      mainStartY = e.touches[0].clientY;
+    });
+
+    window.addEventListener('touchmove', (e) => {
+      if (!isMainInteracting || isVaultLocked) return;
+      const dx = e.touches[0].clientX - mainStartX;
+      const dy = e.touches[0].clientY - mainStartY;
+
+      mainRotY += dx * 0.55;
+      mainRotX -= dy * 0.55;
+      chestRoot.style.transform = `rotateX(${mainRotX}deg) rotateY(${mainRotY}deg)`;
+
+      mainStartX = e.touches[0].clientX;
+      mainStartY = e.touches[0].clientY;
+      e.preventDefault();
+    }, { passive: false });
+
+    window.addEventListener('touchend', () => isMainInteracting = false);
+
+    // Mouse support for PC
+    window.addEventListener('mousedown', (e) => {
+      if (isVaultLocked) return;
+      isMainInteracting = true;
+      mainStartX = e.clientX;
+      mainStartY = e.clientY;
+    });
+    window.addEventListener('mousemove', (e) => {
+      if (!isMainInteracting || isVaultLocked) return;
+      const dx = e.clientX - mainStartX;
+      y = e.clientY - mainStartY;
+
+      mainRotY += dx * 0.55;
+      mainRotX -= dy * 0.55;
+      chestRoot.style.transform = `rotateX(${mainRotX}deg) rotateY(${mainRotY}deg)`;
+
+      mainStartX = e.clientX;
+      mainStartY = e.clientY;
+    });
+    window.addEventListener('mouseup', () => isMainInteracting = false);
+
+    // 2. Individual Mini Cube Touch/Drag Controller (Active when Locked)
+    document.querySelectorAll('.cube-stage').forEach(stage => {
+      const cube = stage.querySelector('.mini-cube');
+      let isCubeDragging = false;
+      let cubeStartX = 0, cubeStartY = 0;
+      let cubeRotX = -15, cubeRotY = 25;
+
+      function startCube(x, y, e) {
+        if (!isVaultLocked) return;
+        e.stopPropagation();
+        isCubeDragging = true;
+        cubeStartX = x;
+        cubeStartY = y;
+      }
+
+      function moveCube(x, y, e) {
+        if (!isCubeDragging || !isVaultLocked) return;
+        e.stopPropagation();
+        const dx = x - cubeStartX;
+        const dy = y - cubeStartY;
+
+        cubeRotY += dx * 1.2;
+        cubeRotX -= dy * 1.2;
+        cube.style.transform = `rotateX(${cubeRotX}deg) rotateY(${cubeRotY}deg)`;
+
+        cubeStartX = x;
+        cubeStartY = y;
+      }
+
+      function endCube(e) {
+        if (isCubeDragging) {
+          e.stopPropagation();
+          isCubeDragging = false;
+        }
+      }
+
+      stage.addEventListener('touchstart', (e) => startCube(e.touches[0].clientX, e.touches[0].clientY, e));
+      stage.addEventListener('touchmove', (e) => moveCube(e.touches[0].clientX, e.touches[0].clientY, e), { passive: false });
+      stage.addEventListener('touchend', endCube);
+
+      stage.addEventListener('mousedown', (e) => startCube(e.clientX, e.clientY, e));
+      window.addEventListener('mousemove', (e) => moveCube(e.clientX, e.clientY));
+      window.addEventListener('mouseup', endCube);
+    });
+
+    // Stop drag triggers on buttons
+    closeBtn.addEventListener('touchstart', (e) => e.stopPropagation());
+    closeBtn.addEventListener('mousedown', (e) => e.stopPropagation());
+    document.querySelectorAll('.access-story-btn').forEach(btn => {
+      btn.addEventListener('touchstart', (e) => e.stopPropagation());
+      btn.addEventListener('mousedown', (e) => e.stopPropagation());
+    });
+  </script>
+</body>
+</html>
