@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>G4 MASH // GULLYADDA</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background-color: #070a0e;
+      background-image: url('bg.jpg'); /* agar PNG hai toh 'bg.png' likhna */
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      
+      /* Halki si dark vignette taaki corners dark rahein aur 3D box pop ho */
+      box-shadow: inset 0 0 100px rgba(0, 0, 0, 0.85);
+
+      color: #00f0ff;
+      font-family: monospace, Courier, sans-serif;
+      height: 100vh;
+      width: 100vw;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      overflow: hidden;
+      padding: 16px 24px;
+    }
+
+    /* Top HUD Layer */
+    .hud-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border: 1px solid rgba(0, 240, 255, 0.25);
+      border-top: none;
+      padding: 10px 18px;
+      font-size: 11px;
+      letter-spacing: 2px;
+      position: relative;
+    }
+
+    .hud-header::before, .hud-header::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      width: 12px;
+      height: 2px;
+      background: #00f0ff;
+    }
+    .hud-header::before { left: 0; }
+    .hud-header::after { right: 0; }
+
+    /* --- STYLISH ABOUT BUTTON START --- */
+    .cyber-btn {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      padding: 6px 14px;
+      font-family: monospace, Courier, sans-serif;
+      font-size: 11px;
+      font-weight: bold;
+      letter-spacing: 2px;
+      color: #00f0ff;
+      text-decoration: none;
+      background: rgba(0, 240, 255, 0.05);
+      border: 1px solid rgba(0, 240, 255, 0.4);
+      /* Cyberpunk Cut-Corners Effect */
+      clip-path: polygon(8px 0%, 100% 0%, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0% 100%, 0% 8px);
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+
+    .cyber-btn:hover {
+      background: #00f0ff;
+      color: #070a0e;
+      box-shadow: 0 0 15px rgba(0, 240, 255, 0.8);
+      transform: translateY(-1px);
+    }
+
+    /* Blinking Cursor Effect */
+    .cursor {
+      display: inline-block;
+      margin-left: 2px;
+      animation: blink 0.8s infinite;
+    }
+
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0; }
+    }
+    /* --- STYLISH ABOUT BUTTON END --- */
+
+    /* Center 3D Box Embed */
+    .viewport-center {
+      flex: 1;
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .box-frame {
+      width: 100%;
+      height: 100%;
+      max-width: 600px;
+      max-height: 480px;
+      border: none;
+    }
+
+    /* Bottom HUD Bracket Footer */
+    .hud-footer {
+      border: 1px solid rgba(0, 240, 255, 0.25);
+      border-bottom: none;
+      padding: 10px 18px;
+      text-align: center;
+      font-size: 10px;
+      letter-spacing: 2px;
+      color: rgba(0, 240, 255, 0.7);
+      position: relative;
+    }
+
+    .hud-footer::before, .hud-footer::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      width: 12px;
+      height: 2px;
+      background: #00f0ff;
+    }
+    .hud-footer::before { left: 0; }
+    .hud-footer::after { right: 0; }
+  </style>
+</head>
+<body>
+
+  <header class="hud-header">
+    <span>[ G4 MASH // GULLYADDA ]</span>
+    
+    <!-- STYLISH ABOUT BUTTON WITH TYPING EFFECT -->
+    <a href="about.html" class="cyber-btn" id="aboutBtn">
+      [ <span id="btnText"></span><span class="cursor">_</span> ]
+    </a>
+
+    <span>[ SYSTEM: CLOSED ]</span>
+  </header>
+
+  <main class="viewport-center">
+    <iframe src="Indexbox.html" class="box-frame" loading="eager"></iframe>
+  </main>
+
+  <footer class="hud-footer">
+    © 2022 G4 MASH // GULLYADDA STORY DATA VAULT
+  </footer>
+
+  <!-- Script for Typewriter Print Effect -->
+  <script>
+    const textToType = "ABOUT";
+    const speed = 150; // Typing speed (ms)
+    let index = 0;
+    const targetElement = document.getElementById("btnText");
+
+    function typeWriter() {
+      if (index < textToType.length) {
+        targetElement.textContent += textToType.charAt(index);
+        index++;
+        setTimeout(typeWriter, speed);
+      }
+    }
+
+    // Start typing on page load
+    window.onload = () => {
+      setTimeout(typeWriter, 400); // 400ms delay ke baad print hona shuru hoga
+    };
+  </script>
+
+</body>
+</html>
