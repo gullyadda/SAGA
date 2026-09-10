@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registry & Verification | SAGA</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            background-color: #08090d;
+            color: #cbd5e1;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, monospace;
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 24px 16px;
+        }
+        .dossier {
+            background: #0f141d;
+            border: 1px solid #1e293b;
+            border-radius: 10px;
+            max-width: 720px;
+            width: 100%;
+            padding: 32px 26px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+        }
+        .sys-header {
+            border-bottom: 1px solid #1e293b;
+            padding-bottom: 18px;
+            margin-bottom: 24px;
+        }
+        .sys-header h1 {
+            font-size: 1.35rem;
+            letter-spacing: 1.5px;
+            color: #38bdf8;
+            text-transform: uppercase;
+            font-family: monospace;
+        }
+        .sys-header p {
+            color: #64748b;
+            font-size: 0.8rem;
+            margin-top: 4px;
+            letter-spacing: 0.5px;
+        }
+        .block-title {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            color: #94a3b8;
+            margin-bottom: 10px;
+            font-family: monospace;
+        }
+        /* Identity Grid */
+        .grid-two {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+        .info-cell {
+            background: #08090d;
+            border: 1px solid #1e293b;
+            border-radius: 6px;
+            padding: 12px 16px;
+        }
+        .info-label {
+            font-size: 0.7rem;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-family: monospace;
+        }
+        .info-val {
+            font-size: 1.05rem;
+            color: #f8fafc;
+            font-weight: 700;
+            margin-top: 2px;
+        }
+        /* Timelines */
+        .timeline-list {
+            background: #08090d;
+            border: 1px solid #1e293b;
+            border-radius: 6px;
+            padding: 16px;
+            margin-bottom: 24px;
+        }
+        .timeline-row {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+        .timeline-row:last-child {
+            margin-bottom: 0;
+        }
+        .time-badge {
+            background: #1e293b;
+            color: #38bdf8;
+            font-family: monospace;
+            font-size: 0.8rem;
+            font-weight: bold;
+            padding: 2px 8px;
+            border-radius: 4px;
+            border: 1px solid #38bdf8;
+            white-space: nowrap;
+        }
+        .time-desc {
+            font-size: 0.88rem;
+            color: #cbd5e1;
+        }
+        /* Universe Overview & Link */
+        .lore-box {
+            background: #08090d;
+            border: 1px solid #1e293b;
+            border-radius: 6px;
+            padding: 18px;
+            margin-bottom: 24px;
+        }
+        .lore-box p {
+            font-size: 0.9rem;
+            color: #94a3b8;
+            margin-bottom: 14px;
+        }
+        .action-link {
+            display: inline-block;
+            background: transparent;
+            color: #38bdf8;
+            border: 1px solid #38bdf8;
+            text-decoration: none;
+            padding: 8px 14px;
+            border-radius: 5px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            font-family: monospace;
+            transition: all 0.2s ease;
+        }
+        .action-link:hover {
+            background: #38bdf8;
+            color: #08090d;
+        }
+        /* Story Reader Button */
+        .reader-banner {
+            margin-bottom: 24px;
+        }
+        .reader-btn {
+            display: block;
+            background: #0369a1;
+            color: #ffffff;
+            text-align: center;
+            text-decoration: none;
+            padding: 12px;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.92rem;
+            border: 1px solid #38bdf8;
+            transition: background 0.2s ease;
+        }
+        .reader-btn:hover {
+            background: #0284c7;
+        }
+        /* Legal Panel */
+        .legal-block {
+            background: #08090d;
+            border-left: 3px solid #38bdf8;
+            border-radius: 0 6px 6px 0;
+            padding: 14px 16px;
+            font-size: 0.82rem;
+            color: #94a3b8;
+            line-height: 1.6;
+        }
+        .legal-block strong {
+            color: #f1f5f9;
+        }
+    </style>
+</head>
+<body>
+
+<div class="dossier">
+    <div class="sys-header">
+        <h1>Project Saga // System Registry</h1>
+        <p>CRYPTOGRAPHIC PRIOR ART & CANON ARCHIVE</p>
+    </div>
+
+    <!-- Verified Entities -->
+    <div class="block-title">// 01. AUTHORS & OPERATING ENTITY</div>
+    <div class="grid-two">
+        <div class="info-cell">
+            <div class="info-label">Author / Creator</div>
+            <div class="info-val">G4 MASH</div>
+        </div>
+        <div class="info-cell">
+            <div class="info-label">Production Brand</div>
+            <div class="info-val">GullyAdda</div>
+        </div>
+    </div>
+
+    <!-- Timestamps -->
+    <div class="block-title">// 02. RECORDED TIMESTAMPS</div>
+    <div class="timeline-list">
+        <div class="timeline-row">
+            <span class="time-badge">2022-09-30</span>
+            <div class="time-desc">Story Genesis: Initial universe architecture, core lore mechanics, and narrative arcs drafted by G4 MASH.</div>
+        </div>
+        <div class="timeline-row">
+            <span class="time-badge">2026-09-08</span>
+            <div class="time-desc">Public System Launch: Open repository deployed to establish permanent decentralized prior art.</div>
+        </div>
+    </div>
+
+    <!-- Universe Overview & Phased Link -->
+    <div class="block-title">// 03. UNIVERSE ARCHITECTURE</div>
+    <div class="lore-box">
+        <p>
+            An ongoing serialized narrative set within the GullyAdda continuum. Focuses on system protocols, encrypted underground networks, high-stakes factions, and personal survival. All canon mechanics and world rules are documented directly inside the archive.
+        </p>
+        <a href="universe-building.html" class="action-link">&rarr; OPEN UNIVERSE ARCHITECTURE (LORE ENGINE)</a>
+    </div>
+
+    <!-- Story Access -->
+    <div class="block-title">// 04. PRIMARY ENTRYPOINT</div>
+    <div class="reader-banner">
+        <a href="index.html" class="reader-btn">&rarr; ACCESS SAGA MANUSCRIPTS READER</a>
+    </div>
+
+    <!-- Legal & IP Notice -->
+    <div class="block-title">// 05. LEGAL DECLARATION & INTEGRITY</div>
+    <div class="legal-block">
+        All narrative rights, characters, structural lore, dialogues, and digital scripts under this registry are the sole intellectual property of <strong>G4 MASH</strong> operating under <strong>GullyAdda</strong>.<br><br>
+        <strong>Proof System:</strong> Timestamps and drafts are cryptographically frozen via cloud version control ledger.<br>
+        <strong>Protection Notice:</strong> Unauthorized duplication, derivative audio/visual adaptations, or ingestion into machine learning/AI models without explicit written permission is strictly prohibited.
+    </div>
+</div>
+
+</body>
+</html>
